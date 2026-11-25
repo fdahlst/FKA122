@@ -4,6 +4,7 @@
 #include <gsl/gsl_fft_real.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 #include <complex.h>
+#include "potential.h"
 
 #include "tools.h"
 
@@ -307,4 +308,52 @@ void powerspectrum(
     gsl_fft_real_workspace_free(work);
     free(complex_coefficient);
     free(data_cp);
+}
+
+void calculate_acceleration(
+		double **accelerations,
+		double **forces,
+		double mass,
+		int N){	
+	for(int ix = 0; ix<N; ++ix)
+		for(int jx = 0; jx<3;++jx)
+			accelerations[ix][jx] = forces[ix][jx]/mass;
+}
+
+void velocity_verlet_one_step(
+		double **accelerations, 
+		double **positions, 
+		double **velocities,
+		double **forces,
+        double mass, 
+		double timestep,
+		int n_atoms,
+		int N,
+		double lattice_const)
+{
+
+    // Write to accelerations, positions and velocities vectors
+	for(int ix = 0; ix<n_atoms;++ix)
+		for(int jx = 0; jx<3; ++jx){
+		velocities[ix][jx] += timestep*accelerations[ix][jx]/2;
+		positions[ix][jx] += velocities[ix][jx]*timestep;
+	}
+	get_forces_AL(forces,positions,N*lattice_const,n_atoms);
+	calculate_acceleration(accelerations, forces, mass,n_atoms);
+
+	for(int ix = 0; ix<n_atoms;++ix)
+		for(int jx = 0; jx < 3; ++jx)
+			velocities[ix][jx] += timestep*accelerations[ix][jx]/2;
+}
+
+double calculate_kinetic_energy(
+		double **velocities,
+		double mass,
+		int n_atoms
+		){
+	double kinetic_energy = 0.;
+	for(int ix = 0; ix<n_atoms; ++ix)
+		for(int jx = 0; jx < 3; ++jx)
+			kinetic_energy += velocities[ix][jx]*velocities[ix][jx]*mass/2.0;
+	return kinetic_energy;
 }

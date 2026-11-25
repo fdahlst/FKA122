@@ -297,3 +297,25 @@ read_xyz(
           double **positions,
           double **velocities,
           double *alat);
+
+void calculate_acceleration(
+		double **accelerations,
+		double **forces,
+		double mass,
+		int N
+		);
+void velocity_verlet_one_step(
+		double **accelerations, 
+		double **positions, 
+		double **velocities,
+		double **forces,
+        double mass, 
+		double timestep,
+		int n_atoms,
+		int N,
+		double lattice_const);
+
+double calculate_kinetic_energy(
+		double **velocities,
+		double mass,
+		int n_atoms);

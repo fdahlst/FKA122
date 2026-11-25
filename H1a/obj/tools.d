@@ -1,1 +1,1 @@
-obj/tools.o: src/tools.c include/tools.h
+obj/tools.o: src/tools.c include/potential.h include/tools.h

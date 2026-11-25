@@ -1,3 +1,5 @@
+#include <gsl/gsl_rng.h>
+
 void init_fcc(double **positions, int N, double lattice_param)
 {
     double base[4][3] = {
@@ -20,3 +22,4 @@ void init_fcc(double **positions, int N, double lattice_param)
         }
     }
 }
+

@@ -18,8 +18,8 @@ plt.legend()
 plt.tight_layout()
 plt.savefig("plots/1.png")
 
-min_energy = min(pot_energy);
-print(f"Mininum energy{min_energy}eV/Unit Cell with lattice constant {lattice_const[np.where(pot_energy == min_energy)][0]}Å")
+min_energy = min(y);
+print(f"Mininum energy{min_energy} eV/Unit Cell with lattice constant {x[np.where(y == min_energy)][0]**(1/3)} Å")
 
 
 
