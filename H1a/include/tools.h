@@ -319,3 +319,43 @@ double calculate_kinetic_energy(
 		double **velocities,
 		double mass,
 		int n_atoms);
+
+
+void scale_velocity(
+		double **velocities,
+		double temperature,
+		double T_eq,
+		double tau_t,
+		double dt,
+		int n_atoms);
+
+void scale_pressure(
+		double **positions,
+		double dt,
+		double tau_P,
+		double P_eq,
+		double n_atoms,
+		double pressure,
+		double kappa_T,
+		double *lattice_const
+		);
+
+
+void
+write_csv(
+		FILE *file,
+		double **array,
+		int N,
+		int M
+		);
+
+double calculate_pressure(
+		double temperature,
+		double virial,
+		double total_length,
+		int n_atoms);
+	
+double calculate_temperature(
+		double **velocities,
+		double mass,
+		int n_atoms);

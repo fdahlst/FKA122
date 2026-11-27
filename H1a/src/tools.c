@@ -357,3 +357,121 @@ double calculate_kinetic_energy(
 			kinetic_energy += velocities[ix][jx]*velocities[ix][jx]*mass/2.0;
 	return kinetic_energy;
 }
+/*
+void velocity_verlet_one_step_temp(
+		double **accelerations, 
+		double **positions, 
+		double **velocities,
+		double **forces,
+		double temperature,
+        double mass, 
+		double timestep,
+		int n_atoms,
+		int N,
+		double lattice_const,
+		double tau_t,
+		double T_eq)
+{
+
+    // Write to accelerations, positions and velocities vectors
+	for(int ix = 0; ix<n_atoms;++ix)
+		for(int jx = 0; jx<3; ++jx){
+			temperature = update_velocity_half(velocities, temperature,timestep,tau_t,T_eq,n_atoms);
+			positions[ix][jx] += velocities[ix][jx]*timestep;
+	}
+	get_forces_AL(forces,positions,N*lattice_const,n_atoms);
+	calculate_acceleration(accelerations, forces, mass,n_atoms);
+
+	for(int ix = 0; ix<n_atoms;++ix)
+		for(int jx = 0; jx < 3; ++jx)
+			velocities[ix][jx] += timestep*accelerations[ix][jx]/2;
+}
+*/
+/*
+double update_velocity_half(
+		double **velocities,
+		double temperature,
+		double dt,
+		double tau_t,
+		double T_eq,
+		int n_atoms
+		){
+	double alpha_T = 1. + dt*(T_eq-temperature)/(tau_t*temperature);
+	for(int ix = 0; ix < n_atoms; ++ix)
+		for(int jx = 0; jx < 3; ++jx)
+			velocities[ix][jx] = sqrt(alpha_T)*velocities[ix][jx];
+	temperature *= (1+alpha_T)/2.;
+	return temperature;
+}*/
+
+void scale_velocity(
+		double **velocities,
+		double temperature,
+		double T_eq,
+		double tau_t,
+		double dt,
+		int n_atoms
+		){
+	double alpha_t = 1 + 2*dt*(T_eq-temperature)/(tau_t*temperature);
+	for(int ix = 0; ix < n_atoms; ++ix)
+		for(int jx = 0; jx < 3; ++jx)
+			velocities[ix][jx] *= sqrt(alpha_t);
+}
+
+void scale_pressure(
+		double **positions,
+		double dt,
+		double tau_P,
+		double P_eq,
+		double n_atoms,
+		double pressure,
+		double kappa_T,
+		double *lattice_const
+		){
+	double alpha_P = 1-kappa_T*dt*(P_eq-pressure)/tau_P;
+	for(int ix = 0; ix<n_atoms;++ix)
+		for(int jx = 0; jx<3; ++jx)
+			positions[ix][jx] *= pow(alpha_P,0.3333333);
+	*lattice_const *= pow(alpha_P,0.3333333);
+}
+
+void
+write_csv(
+		FILE *file,
+		double **array,
+		int N,
+		int M
+		)
+{
+	for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < M; ++j) {
+            fprintf(file, "%f", array[i][j]);
+            if (j < M - 1) {
+                fprintf(file, ",");
+            }
+        }
+        fprintf(file, "\n");
+    }
+	fclose(file);
+}
+
+double calculate_temperature(
+		double **velocities,
+		double mass,
+		int n_atoms
+		){
+	double e_k = calculate_kinetic_energy(velocities,mass,n_atoms);
+	double k_b = 8.617333*1e-5;
+	return (2.*e_k)/(3.*n_atoms*k_b);
+}
+
+double calculate_pressure(
+		double temperature,
+		double virial,
+		double total_length,
+		int n_atoms
+		){
+	double volume = total_length*total_length*total_length;
+	double k_b = 8.617333*1e-5;
+	return (n_atoms*k_b*temperature + virial)/volume;
+}
